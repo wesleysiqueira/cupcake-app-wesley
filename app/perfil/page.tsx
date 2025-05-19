@@ -19,7 +19,7 @@ type EditableField = "name" | "email" | "address" | null;
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<TabType>("info");
   const [favorites, setFavorites] = useState<FavoriteWithCupcake[]>([]);
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
@@ -27,9 +27,9 @@ export default function ProfilePage() {
   const { order } = useOrder();
   const [editingField, setEditingField] = useState<EditableField>(null);
   const [formData, setFormData] = useState({
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
-    address: session?.user?.address || "",
+    name: "",
+    email: "",
+    address: "",
   });
 
   const tabs = [
@@ -39,18 +39,21 @@ export default function ProfilePage() {
   ] as const;
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/login");
 
-  useEffect(() => {
-    if (session?.user) {
+      return;
+    }
+
+    if (status === "authenticated" && session?.user) {
       setFormData({
         name: session.user.name || "",
         email: session.user.email || "",
         address: session.user.address || "",
       });
+      loadData();
     }
-  }, [session]);
+  }, [status, session, router]);
 
   const loadData = async () => {
     try {
@@ -116,6 +119,18 @@ export default function ProfilePage() {
       toast.error("Erro ao realizar logout");
     }
   };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Text>Carregando...</Text>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // This will be handled by the useEffect redirect
+  }
 
   return (
     <div className="min-h-screen bg-white">
