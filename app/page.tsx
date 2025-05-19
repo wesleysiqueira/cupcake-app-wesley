@@ -31,8 +31,8 @@ export default function CupcakePage() {
       }
     })
     .sort((a, b) => {
-      if (a.favorite && !b.favorite) return -1;
-      if (!a.favorite && b.favorite) return 1;
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
 

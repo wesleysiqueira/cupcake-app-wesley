@@ -4,13 +4,7 @@ import CupcakeDetailsClient from "./CupcakeDetailsClient";
 
 import { prisma } from "@/lib/prisma";
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function CupcakeDetailsPage({ params }: PageProps) {
+export default async function CupcakeDetailsPage({ params }: any) {
   const cupcake = await prisma.cupcake.findUnique({
     where: {
       id: Number(params.id),
