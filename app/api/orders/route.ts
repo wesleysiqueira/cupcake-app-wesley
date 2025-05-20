@@ -2,36 +2,42 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
-    }
-
     const orders = await prisma.order.findMany({
-      where: {
-        userId,
-      },
       include: {
         items: {
           include: {
             cupcake: true,
           },
         },
+        user: true,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json(orders);
-  } catch (error) {
-    console.error("Error fetching orders:", error);
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      customerName: order.user.name || "Cliente",
+      status: order.status.toLowerCase(),
+      createdAt: order.createdAt,
+      total: order.total,
+      items: order.items.map((item) => ({
+        id: item.id,
+        name: item.cupcake.name,
+        quantity: item.quantity,
+        price: item.price,
+        notes: item.notes,
+      })),
+    }));
 
-    return NextResponse.json({ error: "Error fetching orders" }, { status: 500 });
+    return NextResponse.json(formattedOrders);
+  } catch (error) {
+    console.error("Erro ao buscar pedidos:", error);
+
+    return NextResponse.json({ error: "Erro ao buscar pedidos" }, { status: 500 });
   }
 }
 
