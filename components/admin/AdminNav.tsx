@@ -16,6 +16,10 @@ export default function AdminNav() {
     console.log("AdminNav Debug:", { user, isAdmin });
   }, [user, isAdmin]);
 
+  if (!user || !isAdmin) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-20 right-4 z-50">
       <Link
