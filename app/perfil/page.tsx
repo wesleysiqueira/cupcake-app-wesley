@@ -65,6 +65,8 @@ export default function ProfilePage() {
         getOrders(session.user.id),
       ]);
 
+      console.log("🚀 ~ loadData ~ ordersData:", ordersData);
+
       setFavorites(favoritesData);
       setOrders(ordersData);
     } catch (error) {
@@ -368,7 +370,13 @@ export default function ProfilePage() {
                       <div className="flex justify-between items-center">
                         <Text className="!mb-0 font-medium">Data de Entrega:</Text>
                         <Text className="!mb-0">
-                          {new Date(order.deliveryDate).toLocaleDateString("pt-BR")}
+                          {order.deliveryDate
+                            ? new Date(order.deliveryDate).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              })
+                            : "Data não definida"}
                         </Text>
                       </div>
 
@@ -396,7 +404,7 @@ export default function ProfilePage() {
                           {order.items.map((item) => (
                             <div key={item.id} className="flex justify-between items-center">
                               <Text className="!mb-0">
-                                {item.quantity}x {item.cupcake.name}
+                                {item.quantity}x {item.cupcake?.name || "Cupcake"}
                               </Text>
                               <Text className="!mb-0 text-orange-500">
                                 R$ {(item.price * item.quantity).toFixed(2)}

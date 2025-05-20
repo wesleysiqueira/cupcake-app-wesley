@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+
     const orders = await prisma.order.findMany({
+      where: userId
+        ? {
+            userId: userId,
+          }
+        : undefined,
       include: {
         items: {
           include: {
@@ -23,6 +31,7 @@ export async function GET() {
       customerName: order.user.name || "Cliente",
       status: order.status.toLowerCase(),
       createdAt: order.createdAt,
+      deliveryDate: order.deliveryDate,
       total: order.total,
       items: order.items.map((item) => ({
         id: item.id,
