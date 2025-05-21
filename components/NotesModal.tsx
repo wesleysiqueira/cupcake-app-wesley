@@ -14,6 +14,7 @@ interface NotesModalProps {
 export default function NotesModal({ isOpen, onClose, itemId }: NotesModalProps) {
   const { items, updateNotes } = useCart();
   const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (itemId) {
@@ -25,13 +26,21 @@ export default function NotesModal({ isOpen, onClose, itemId }: NotesModalProps)
 
   const handleSave = () => {
     if (itemId) {
-      updateNotes(itemId, notes);
-      onClose();
+      const trimmedNotes = notes.trim();
+
+      if (trimmedNotes) {
+        setError("");
+        updateNotes(itemId, trimmedNotes);
+        onClose();
+      } else {
+        setError("Por favor, adicione uma observação válida");
+      }
     }
   };
 
   const handleRemove = () => {
     if (itemId) {
+      setError("");
       updateNotes(itemId, "");
       onClose();
     }
@@ -49,8 +58,13 @@ export default function NotesModal({ isOpen, onClose, itemId }: NotesModalProps)
             className="w-full h-32 p-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             placeholder="Digite suas observações aqui..."
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => {
+              setNotes(e.target.value);
+              setError("");
+            }}
           />
+
+          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
 
           <div className="mt-4 flex gap-2">
             <button
