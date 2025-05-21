@@ -2,13 +2,14 @@ import { Cupcake, Order, Favorite } from "@prisma/client";
 
 // Types
 export type OrderWithItems = Order & {
-  items: Array<{
-    id: string;
-    quantity: number;
-    price: number;
-    notes?: string;
-    cupcake: Cupcake;
-  }>;
+  items: Array<
+    {
+      id: string;
+      quantity: number;
+      price: number;
+      notes?: string;
+    } & Cupcake
+  >;
 };
 
 export type FavoriteWithCupcake = Favorite & {

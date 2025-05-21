@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const formattedOrders = orders.map((order) => ({
       id: order.id,
       customerName: order.user.name || "Cliente",
-      status: order.status.toLowerCase(),
+      status: order.status,
       createdAt: order.createdAt,
       deliveryDate: order.deliveryDate,
       total: order.total,

@@ -2,23 +2,34 @@
 
 import Link from "next/link";
 import { CheckCircle } from "@mui/icons-material";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { Title } from "@/components/text/Title";
 import { Text } from "@/components/text/Text";
 import Header from "@/components/Header";
 import { useOrder } from "@/context/OrderContext";
+import { useCart } from "@/context/CartContext";
 
 export default function SuccessPage() {
   const { order } = useOrder();
+  const { clearCart } = useCart();
   const router = useRouter();
+  const hasClearedCart = useRef(false);
 
   useEffect(() => {
     if (!order?.status) {
       router.push("/");
+
+      return;
     }
-  }, [order, router]);
+
+    // Only clear the cart once
+    if (!hasClearedCart.current) {
+      clearCart();
+      hasClearedCart.current = true;
+    }
+  }, [order, router, clearCart]);
 
   return (
     <div className="min-h-screen bg-white">

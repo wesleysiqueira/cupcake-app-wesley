@@ -65,8 +65,6 @@ export default function ProfilePage() {
         getOrders(session.user.id),
       ]);
 
-      console.log("🚀 ~ loadData ~ ordersData:", ordersData);
-
       setFavorites(favoritesData);
       setOrders(ordersData);
     } catch (error) {
@@ -401,16 +399,18 @@ export default function ProfilePage() {
                       <div className="mt-4 pt-4 border-t border-orange-200">
                         <Text className="!mb-2 font-medium">Itens do Pedido:</Text>
                         <div className="space-y-2">
-                          {order.items.map((item) => (
-                            <div key={item.id} className="flex justify-between items-center">
-                              <Text className="!mb-0">
-                                {item.quantity}x {item.cupcake?.name || "Cupcake"}
-                              </Text>
-                              <Text className="!mb-0 text-orange-500">
-                                R$ {(item.price * item.quantity).toFixed(2)}
-                              </Text>
-                            </div>
-                          ))}
+                          {order.items.map((item) => {
+                            return (
+                              <div key={item.id} className="flex justify-between items-center">
+                                <Text className="!mb-0">
+                                  {item.quantity}x {item.name || "Cupcake"}
+                                </Text>
+                                <Text className="!mb-0 text-orange-500">
+                                  R$ {(item.price * item.quantity).toFixed(2)}
+                                </Text>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>

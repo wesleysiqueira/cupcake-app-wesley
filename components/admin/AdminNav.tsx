@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Shield } from "lucide-react";
-import { useEffect } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -11,10 +10,6 @@ export default function AdminNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
-
-  useEffect(() => {
-    console.log("AdminNav Debug:", { user, isAdmin });
-  }, [user, isAdmin]);
 
   if (!user || !isAdmin) {
     return null;
