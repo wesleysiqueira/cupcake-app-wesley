@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8 pb-16">
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>

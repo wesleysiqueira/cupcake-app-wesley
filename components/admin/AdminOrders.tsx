@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/react";
 import { Chip } from "@heroui/react";
-import { Select, SelectItem } from "@heroui/react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
-import { Clock, User, Package, DollarSign, X } from "lucide-react";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import { Clock, User, Package, DollarSign, X, ChevronDown } from "lucide-react";
 
 type OrderItem = {
   id: string;
@@ -119,7 +119,7 @@ export default function AdminOrders({ selectedTab }: AdminOrdersProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredOrders.map((order) => (
-          <Card key={order.id} className="bg-white">
+          <Card key={order.id} className="bg-white relative overflow-visible">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="flex items-center space-x-2">
                 <Package className="h-4 w-4 text-gray-500" />
@@ -151,18 +151,58 @@ export default function AdminOrders({ selectedTab }: AdminOrdersProps) {
                 </button>
               </div>
             </CardBody>
-            <CardFooter>
-              <Select
-                className="w-full"
-                selectedKeys={[order.status]}
-                size="sm"
-                onChange={(e) => updateOrderStatus(order.id, e.target.value as Order["status"])}
-              >
-                <SelectItem key="pending">Pendente</SelectItem>
-                <SelectItem key="processing">Processando</SelectItem>
-                <SelectItem key="delivered">Entregue</SelectItem>
-                <SelectItem key="cancelled">Cancelado</SelectItem>
-              </Select>
+            <CardFooter className="pb-4">
+              <div className="w-full">
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      className="w-full justify-between bg-white border border-gray-200 hover:bg-gray-50"
+                      endContent={<ChevronDown className="h-4 w-4 text-gray-500" />}
+                      size="sm"
+                      variant="flat"
+                    >
+                      <Chip
+                        className="font-medium"
+                        color={statusColors[order.status]}
+                        size="sm"
+                        variant="flat"
+                      >
+                        {statusLabels[order.status]}
+                      </Chip>
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Status do pedido"
+                    className="min-w-[200px] z-40"
+                    itemClasses={{
+                      base: "gap-4",
+                      title: "text-sm font-medium",
+                    }}
+                    onAction={(key) => updateOrderStatus(order.id, key as Order["status"])}
+                  >
+                    <DropdownItem key="pending" className="text-warning">
+                      <Chip color="warning" size="sm" variant="flat">
+                        Pendente
+                      </Chip>
+                    </DropdownItem>
+                    <DropdownItem key="processing" className="text-secondary">
+                      <Chip color="secondary" size="sm" variant="flat">
+                        Processando
+                      </Chip>
+                    </DropdownItem>
+                    <DropdownItem key="delivered" className="text-success">
+                      <Chip color="success" size="sm" variant="flat">
+                        Entregue
+                      </Chip>
+                    </DropdownItem>
+                    <DropdownItem key="cancelled" className="text-danger">
+                      <Chip color="danger" size="sm" variant="flat">
+                        Cancelado
+                      </Chip>
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
             </CardFooter>
           </Card>
         ))}
