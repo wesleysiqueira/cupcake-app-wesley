@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 import { useOrder } from "@/context/OrderContext";
 import Input from "@/components/form/Input";
@@ -22,50 +23,84 @@ const formSchema = z.object({
       (date) => {
         const [day, month, year] = date.split("/");
         const dateObj = new Date(`${year}-${month}-${day}`);
+        const today = new Date();
 
-        return !isNaN(dateObj.getTime());
+        today.setHours(0, 0, 0, 0);
+
+        return dateObj >= today;
       },
       {
-        message: "Data inválida",
-      }
-    )
-    .refine(
-      (date) => {
-        const [day, month, year] = date.split("/");
-        const dateObj = new Date(`${year}-${month}-${day}`);
-
-        return dateObj > new Date();
-      },
-      {
-        message: "A data deve ser futura",
+        message: "A data deve ser hoje ou futura",
       }
     ),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
+type UserData = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  address: string | null;
+};
+
 export default function ConfirmacaoPage() {
   const { order, setOrder } = useOrder();
   const router = useRouter();
   const { data: session } = useSession();
-
-  console.log("🚀 ~ ConfirmacaoPage ~ session:", session);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nome: session?.user?.name || order.deliveryData?.name || "",
-      email: session?.user?.email || order.deliveryData?.email || "",
-      endereco: session?.user?.address || order.deliveryData?.address || "",
+      nome: "",
+      email: "",
+      endereco: "",
       dataEntrega: order.deliveryData?.deliveryDate
         ? new Date(order.deliveryData.deliveryDate).toLocaleDateString("pt-BR")
         : "",
     },
   });
+
+  useEffect(() => {
+    async function fetchUserData() {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/user/${session.user.id}`);
+
+          if (response.ok) {
+            const data = await response.json();
+
+            setUserData(data);
+
+            // Reset form with new values
+            reset({
+              nome: data.name || order.deliveryData?.name || "",
+              email: data.email || order.deliveryData?.email || "",
+              endereco: data.address || order.deliveryData?.address || "",
+              dataEntrega: order.deliveryData?.deliveryDate
+                ? new Date(order.deliveryData.deliveryDate).toLocaleDateString("pt-BR")
+                : "",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }
+
+    fetchUserData();
+  }, [session?.user?.id, order.deliveryData, reset]);
 
   const onSubmit = (data: FormData) => {
     setOrder({
@@ -80,6 +115,14 @@ export default function ConfirmacaoPage() {
 
     router.push("/pagamento");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
